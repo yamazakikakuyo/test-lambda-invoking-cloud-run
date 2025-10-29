@@ -45,16 +45,18 @@ def _get_token():
             text=True,
             env=os.environ.copy()
         ).strip()
+
+        print(type(token))
+        print(token)
+        if not token:
+            raise RuntimeError("No token returned by /opt/scripts/get_token.sh")
+        return token
     except subprocess.CalledProcessError as e:
         print("Command Subprocess failed!")
         print("Return code:", e.returncode)
         print("STDOUT:\n", e.stdout)
         print("STDERR:\n", e.stderr)
-    print(type(token))
-    print(token)
-    if not token:
-        raise RuntimeError("No token returned by /opt/scripts/get_token.sh")
-    return token
+    
 
 def lambda_handler(event, context):
     token = _get_token()
