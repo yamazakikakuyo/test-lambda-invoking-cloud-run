@@ -51,12 +51,11 @@ def _get_token():
             text=True,
             env=os.environ.copy()
         )
-
-        print("DataType Token:", type(token))
-        print("Value Token:", token)
-        if not token:
+        result_token = token.stdout
+        print("Value Token:", result_token)
+        if not result_token:
             raise RuntimeError("No token returned by /opt/scripts/get_token.sh")
-        return token
+        return result_token
     except subprocess.CalledProcessError as e:
         print("Command Subprocess failed!")
         print("Return code:", e.returncode)
