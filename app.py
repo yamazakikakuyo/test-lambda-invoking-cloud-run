@@ -56,6 +56,7 @@ def _get_token():
         print("Return code:", e.returncode)
         print("STDOUT:\n", e.stdout)
         print("STDERR:\n", e.stderr)
+        print(e)
     
 
 def lambda_handler(event, context):
