@@ -31,6 +31,7 @@ ENV GCP_AUDIENCE="${SERVICE_URL}"
 ENV GCP_IMPERSONATE_SA="aws-cloud-run-invoker@ai-deployment-475315.iam.gserviceaccount.com"
 ENV AWS_WIF_CRED="/opt/wif/aws-wif.json"
 ENV GCLOUD_BIN="/opt/google-cloud-sdk/bin/gcloud"
+ENV CLOUDSDK_CONFIG=/tmp/gcloud
 
 # Lambda entrypoint (module.function)
 CMD ["app.lambda_handler"]
