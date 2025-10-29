@@ -20,6 +20,7 @@ def _get_token():
         print("GCP_AUDIENCE or SERVICE_URL must be set", file=sys.stderr)
         sys.exit(1)
     try:
+        print("Generate AWS Key")
         aws_key = subprocess.check_output(["bash", "-c", "aws configure export-credentials --format process"], text=True).strip()
         aws_key = json.loads(aws_key)
 
@@ -27,14 +28,17 @@ def _get_token():
                     ("AWS_SECRET_ACCESS_KEY", "SecretAccessKey"),
                     ("AWS_SESSION_TOKEN", "SessionToken")]:
             os.environ[x] = aws_key[y]
-
+        
+        print("Login with Cred File")
         subprocess.run([
             GCLOUD_BIN,
             "auth",
             "login",
             f"--cred-file={AWS_WIF_CRED}",
-            "--quiet"])
+            "--quiet"],
+            check=True)
 
+        print("Generate Token")
         token = subprocess.run(
             [
                 GCLOUD_BIN, "auth", "print-identity-token",
