@@ -17,8 +17,8 @@ COPY requirements.txt .
 RUN python -m pip install --no-cache-dir -r requirements.txt -t "${LAMBDA_TASK_ROOT}"
 
 # Code & scripts
-COPY handler.py ${LAMBDA_TASK_ROOT}/app.py
-COPY scripts/get_token.sh /opt/scripts/get_token.sh
+COPY app.py ${LAMBDA_TASK_ROOT}/app.py
+COPY get_token.sh /opt/scripts/get_token.sh
 RUN chmod +x /opt/scripts/get_token.sh
 
 # Your WIF credentials file (you will provide this at build time)
