@@ -32,7 +32,7 @@ def _get_token():
             GCLOUD_BIN,
             "auth",
             "login",
-            "--cred-file=./aws-wif.json",
+            f"--cred-file={AWS_WIF_CRED}",
             "--quiet"])
 
         token = subprocess.check_output(
@@ -41,7 +41,7 @@ def _get_token():
                 f"--audiences={GCP_AUDIENCE}",
                 f"--impersonate-service-account={GCP_IMPERSONATE_SA}"
             ],
-            stderr=subprocess.STDOUT,
+            # stderr=subprocess.STDOUT,
             text=True,
             env=os.environ.copy()
         ).strip()
