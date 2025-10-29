@@ -51,7 +51,7 @@ def _get_token():
             text=True,
             env=os.environ.copy()
         )
-        result_token = token.stdout
+        result_token = token.stdout.strip()
         print("Value Token:", result_token)
         if not result_token:
             raise RuntimeError("No token returned by /opt/scripts/get_token.sh")
@@ -64,7 +64,9 @@ def _get_token():
     
 
 def lambda_handler(event, context):
+    print("--- GETTING TOKEN ---")
     token = _get_token()
+    print("--- TOKEN PRODUCED ---")
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
