@@ -25,6 +25,13 @@ phases:
     commands:
       - echo "Pushing image..."
       - docker push $REPO_URI:$IMAGE_TAG
+      - echo "Deploying new image to Lambda function..."
+      - aws lambda update-function-code \
+          --function-name $LAMBDA_FUNCTION_NAME \
+          --image-uri $REPO_URI:$IMAGE_TAG \
+          --region $AWS_REGION
+
+      - echo "Deployment complete!"
 artifacts:
   files:
     - '**/*'

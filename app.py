@@ -19,31 +19,37 @@ def _get_token():
     if not GCP_AUDIENCE:
         print("GCP_AUDIENCE or SERVICE_URL must be set", file=sys.stderr)
         sys.exit(1)
+    try:
+        aws_key = subprocess.check_output(["bash", "-c", "aws configure export-credentials --format process"], text=True).strip()
+        aws_key = json.loads(aws_key)
 
-    aws_key = subprocess.check_output(["bash", "-c", "aws configure export-credentials --format process"], text=True).strip()
-    aws_key = json.loads(aws_key)
+        for x, y in [("AWS_ACCESS_KEY_ID", "AccessKeyId"),
+                    ("AWS_SECRET_ACCESS_KEY", "SecretAccessKey"),
+                    ("AWS_SESSION_TOKEN", "SessionToken")]:
+            os.environ[x] = aws_key[y]
 
-    for x, y in [("AWS_ACCESS_KEY_ID", "AccessKeyId"),
-                ("AWS_SECRET_ACCESS_KEY", "SecretAccessKey"),
-                ("AWS_SESSION_TOKEN", "SessionToken")]:
-        os.environ[x] = aws_key[y]
+        subprocess.run([
+            GCLOUD_BIN,
+            "auth",
+            "login",
+            "--cred-file=./aws-wif.json",
+            "--quiet"])
 
-    subprocess.run([
-        GCLOUD_BIN,
-        "auth",
-        "login",
-        "--cred-file=./aws-wif.json",
-        "--quiet"])
-
-    token = subprocess.check_output(
-        [
-            GCLOUD_BIN, "auth", "print-identity-token",
-            f"--audiences={GCP_AUDIENCE}",
-            f"--impersonate-service-account={GCP_IMPERSONATE_SA}"
-        ],
-        text=True,
-        env=os.environ.copy()
-    ).strip()
+        token = subprocess.check_output(
+            [
+                GCLOUD_BIN, "auth", "print-identity-token",
+                f"--audiences={GCP_AUDIENCE}",
+                f"--impersonate-service-account={GCP_IMPERSONATE_SA}"
+            ],
+            stderr=subprocess.STDOUT,
+            text=True,
+            env=os.environ.copy()
+        ).strip()
+    except subprocess.CalledProcessError as e:
+        print("Command Subprocess failed!")
+        print("Return code:", e.returncode)
+        print("STDOUT:\n", e.stdout)
+        print("STDERR:\n", e.stderr)
 
     if not token:
         raise RuntimeError("No token returned by /opt/scripts/get_token.sh")
