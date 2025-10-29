@@ -5,6 +5,7 @@ env:
     AWS_REGION: ap-southeast-1
     REPO_NAME: cloud-run-invoker
     IMAGE_TAG: latest
+    LAMBDA_FUNCTION_NAME: cloud-run-invoker
   # Optional: speed up subsequent builds
   # Use "cache: { type: local, modes: [LOCAL_DOCKER_LAYER_CACHE] }" in project settings
 
