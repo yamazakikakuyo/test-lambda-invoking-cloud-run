@@ -2,15 +2,49 @@ import json
 import os
 import subprocess
 import requests
+import sys
 
-SERVICE_URL = os.environ.get("SERVICE_URL", "https://test-secure-api-601511081631.us-central1.run.app/")
+SERVICE_URL        = os.environ.get("SERVICE_URL", "https://test-secure-api-601511081631.us-central1.run.app/")
+GCP_AUDIENCE       = os.environ.get("GCP_AUDIENCE", SERVICE_URL)
+GCP_IMPERSONATE_SA = os.environ.get("GCP_IMPERSONATE_SA", "aws-cloud-run-invoker@ai-deployment-475315.iam.gserviceaccount.com")
+AWS_WIF_CRED       = os.environ.get("AWS_WIF_CRED", "/opt/wif/aws-wif.json")
+GCLOUD_BIN         = os.environ.get("GCLOUD_BIN", "/opt/google-cloud-sdk/bin/gcloud")
 
 def _get_token():
     # Run the bash script and capture only the token from stdout
+    if not AWS_WIF_CRED or not os.path.isfile(AWS_WIF_CRED):
+        print(f"WIF cred file not found at {AWS_WIF_CRED}", file=sys.stderr)
+        sys.exit(1)
+
+    if not GCP_AUDIENCE:
+        print("GCP_AUDIENCE or SERVICE_URL must be set", file=sys.stderr)
+        sys.exit(1)
+
+    aws_key = subprocess.check_output(["bash", "-c", "aws configure export-credentials --format process"], text=True).strip()
+    aws_key = json.loads(aws_key)
+
+    for x, y in [("AWS_ACCESS_KEY_ID", "AccessKeyId"),
+                ("AWS_SECRET_ACCESS_KEY", "SecretAccessKey"),
+                ("AWS_SESSION_TOKEN", "SessionToken")]:
+        os.environ[x] = aws_key[y]
+
+    subprocess.run([
+        GCLOUD_BIN,
+        "auth",
+        "login",
+        "--cred-file=./aws-wif.json",
+        "--quiet"])
+
     token = subprocess.check_output(
-        ["bash", "/opt/scripts/get_token.sh"],
-        text=True
+        [
+            GCLOUD_BIN, "auth", "print-identity-token",
+            f"--audiences={GCP_AUDIENCE}",
+            f"--impersonate-service-account={GCP_IMPERSONATE_SA}"
+        ],
+        text=True,
+        env=os.environ.copy()
     ).strip()
+
     if not token:
         raise RuntimeError("No token returned by /opt/scripts/get_token.sh")
     return token
