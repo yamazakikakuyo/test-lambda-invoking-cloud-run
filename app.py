@@ -50,7 +50,8 @@ def _get_token():
         print("Return code:", e.returncode)
         print("STDOUT:\n", e.stdout)
         print("STDERR:\n", e.stderr)
-
+    print(type(token))
+    print(token)
     if not token:
         raise RuntimeError("No token returned by /opt/scripts/get_token.sh")
     return token
