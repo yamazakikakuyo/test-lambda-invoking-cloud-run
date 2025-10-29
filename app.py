@@ -46,8 +46,8 @@ def _get_token():
             env=os.environ.copy()
         ).strip()
 
-        print(type(token))
-        print(token)
+        print("DataType Token:", type(token))
+        print("Value Token:", token)
         if not token:
             raise RuntimeError("No token returned by /opt/scripts/get_token.sh")
         return token
@@ -64,6 +64,8 @@ def lambda_handler(event, context):
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
     }
+
+    print("Headers:", headers)
 
     resp = requests.post(SERVICE_URL, headers=headers, timeout=30)
 
