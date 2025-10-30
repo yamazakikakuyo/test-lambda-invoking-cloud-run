@@ -54,7 +54,7 @@ def _get_token():
         result_token = token.stdout.strip()
         print("Value Token:", result_token)
         if not result_token:
-            raise RuntimeError("No token returned by /opt/scripts/get_token.sh")
+            raise RuntimeError("No token returned")
         return result_token
     except subprocess.CalledProcessError as e:
         print("Command Subprocess failed!")
